@@ -16,6 +16,10 @@ class TodoItem {
         this.priority = priority;
         this.isComplete = false;
     }
+
+    deleteTask() {
+
+    }
 }
 
 
@@ -126,37 +130,48 @@ class updateContent {
             const classifications = Object.getOwnPropertyNames(filterTasks.prototype).filter(prop => prop !== 'constructor' && typeof filter[prop] === 'function');
             classifications.forEach(updatePage);
             function updatePage(classification){
-                
-                // const div = document.createElement('div'); 
-                // div.classList.add('task-item');
+        
                 const itemList = filter[classification](items)[0];
                 if (itemList.length === 0) {
                     console.log('No items');
                     return;
                 }
                 filter[classification](items)[1].innerHTML = '';
+                createTaskDiv(itemList, classification);
+                 
+            }
+
+            function createTaskDiv(itemList, classification) {
                 itemList.forEach((item) => {
                     const taskDiv = document.createElement('div');
                     taskDiv.innerHTML =`
+                    <button class="task-complete" type="button">✓</button>
+                    <button class="task-delete" type="button">X</button>
                     <div>Project: ${item.project}</div>
                     <div>Task: ${item.task}</div>
                     <div>Details: ${item.details}</div>
                     <div>Due Date: ${item.dueDate}</div>
                     <div>Priority: ${item.priority}</div>
                     `;
+
+                    function deleteTask(item){
+                        const index = items.findIndex((task) => task === item);
+                        if (index > -1) {
+                            items.splice(index, 1); // Remove from items array
+                        }
+                        document.dispatchEvent(updateHome.itemsChangeEvent);
+                    }
+
+                    const deleteButton = taskDiv.querySelector('.task-delete');
+                    deleteButton.addEventListener('click', () => deleteTask(item));
+
                     filter[classification](items)[1].appendChild(taskDiv);
                 })
-                // const item = itemList[itemList.length-1];
-                // const htmlCode = `
-                // <div>Project: ${item.project}</div>
-                // <div>Task: ${item.task}</div>
-                // <div>Details: ${item.details}</div>
-                // <div>Due Date: ${item.dueDate}</div>
-                // <div>Priority: ${item.priority}</div>
-                // `
-                // div.innerHTML = htmlCode;
-                // filter[classification](items)[1].innerHTML = '';
-                // filter[classification](items)[1].appendChild(div);
+            }
+
+
+            function deleteTaskButton(taskDiv){
+
             }
         }
     }
@@ -205,8 +220,20 @@ class filterTasks {
 }
 
 
+
+
+
 let items = [];
 const dropDown = new Dropdown();
 const addTask = new addTasks;
 const updateHome = new updateContent;
 
+
+/*
+To do:
+1. Deleting of tasks
+2. Creating projects
+3. Deleting projects (and items in it)
+
+
+*/ 
