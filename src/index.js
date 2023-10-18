@@ -253,6 +253,8 @@ function addTaskForm(){
         const item = new TaskItem(project, task, details, dueDate, priority)
         taskList.push(item);
         content.updateContent();
+        document.getElementById('task').value = '';
+        document.getElementById('details').value = '';
     })
 
     document.addEventListener('click', (event) => {
