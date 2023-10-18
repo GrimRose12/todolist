@@ -4,69 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-do list</title>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
+    
 </head>
 <body>
     <div class="wrapper">
-        <div class="header">My Tasks</div>
+        <header>My Tasks</header>
         <div class="sidebar">
-            <div class="upper">
-                <button class="add-tasks" type="button">Add tasks</button>
-                <div class="tab" data-tab-target="#home">Home</div>
-                <button class="timeSelect" type="button">Dropdown</button>
-                <div class="timeDropdown hidden">
-                    <div class="tab" data-tab-target="#all">All</div>
-                    <div class="tab" data-tab-target="#today">Today</div>
-                    <div class="tab" data-tab-target="#tomorrow">Tomorrow</div>
-                    <div class="tab" data-tab-target="#week">This week</div>
-                    <div class="tab" data-tab-target="#month">This month</div>
-                    <div class="tab" data-tab-target="#overdue">Overdue</div>
-                </div>
+            <button class="add-task-button" type="button">Add task</button>
+            <div class="Home">
+                Home
             </div>
-            <div class="lower">
+            <div class="period">
+                <div class="select-period">All</div>
+                <ul class='hidden period-list'>
+                    <li class="period-list-item" id="all">All</li>
+                    <li class="period-list-item" id="today">Today</li>
+                    <li class="period-list-item" id="tomorrow">Tomorrow</li>
+                    <li class="period-list-item" id="week">This Week</li>
+                    <li class="period-list-item" id="month">This Month</li>
+                    <li class="period-list-item" id="year">This Year</li>
+                    <li class="period-list-item" id="overdue">Overdue</li>
+                </ul>
+            </div>
+            <div class="projects">
                 Projects
-                <button class="create-project" type="button">+</button>
-            </div>
-        </div>
-        <div class="content">
-            <div id="home" data-tab-content>
-                <h1>Home</h1>
-                <p>This is the home.</p>
-                <div class="items"></div>
-            </div>
-            <div id="all" data-tab-content>
-                <h1>All tasks</h1>
-                <p>These are all the tasks.</p>
-                <div class="items"></div>
-            </div>
-            <div id="today" data-tab-content>
-                <h1>Due today</h1>
-                <p>These are today's tasks.</p>
-                <div class="items"></div>
-            </div>
-            <div id="tomorrow" data-tab-content>
-                <h1>Due tomorrow</h1>
-                <p>These are due tomorrow.</p>
-                <div class="items"></div>
-            </div>
-            <div id="week" data-tab-content>
-                <h1>This week</h1>
-                <p>These are due this week.</p>
-                <div class="items"></div>
-            </div>
-            <div id="month" data-tab-content>
-                <h1>This month</h1>
-                <p>These are due this month.</p>
-                <div class="items"></div>
-            </div>
-            <div id="overdue" data-tab-content>
-                <h1>Overdue</h1>
-                <p>These are overdue tasks.</p>
-                <div class="items"></div>
-            </div>
-        </div>
-        <div class="footer">Footer</div>
+                <div class="new-project">
+                    <input type="text" name="new-project"id="new-project" placeholder="Add new project">
+                    <!-- <button type="submit">Add project</button> -->
+                </div>
+                <ul class="project-list">
 
+                </ul>
+            </div>
+        </div>
+        <main class="content">
+            <div class="main-content-header"></div>
+            <div class="main-content"></div>
+        </main>
+
+
+        <footer>Footer</footer>
         <div class="add-task-modal" hidden>
             <div class="add-task-modal-content">
                 <form class="add-task" action="./" method="post">
@@ -93,6 +70,10 @@
                 </form>
             </div>
         </div>
+
+        
     </div>
 </body>
-</html>
+</html> 
+
+

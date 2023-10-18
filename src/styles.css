@@ -17,7 +17,7 @@ body {
     
 }
 
-.header {
+header {
     grid-area: 1/1/2/3;
 }
 
@@ -27,6 +27,7 @@ body {
 
 .hidden {
     opacity: 0;
+    pointer-events: none;
 }
 
 
@@ -34,15 +35,8 @@ body {
     grid-area: 2/2/3/3;
 }
 
-[data-tab-content] {
-    display: none;
-}
 
-.active[data-tab-content] {
-    display: block;
-}
-
-.footer {
+footer {
     grid-area: 3/1/4/3;
 }
 

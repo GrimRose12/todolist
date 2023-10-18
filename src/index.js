@@ -1,239 +1,276 @@
 import './styles.css';
-import {differenceInCalendarDays, isSameDay, isTomorrow, isSameWeek, isSameMonth, isPast} from 'date-fns'
+import {isSameDay, isTomorrow, isSameWeek, isSameMonth, isSameYear, isPast} from 'date-fns';
 
-class categories {
-    constructor(name){
-        this.name = name;
-    }
-}
-
-class TodoItem {
-    constructor(project='none', task, details ='', dueDate, priority = 'low') {
+class TaskItem {
+    constructor(project, task, details, dueDate, priority){
         this.project = project;
         this.task = task;
         this.details = details;
         this.dueDate = dueDate;
         this.priority = priority;
-        this.isComplete = false;
-    }
-
-    deleteTask() {
-
+        this.isDone = false;
+        this.isShown = false;
     }
 }
 
 
-function create() {
-    // for the + button
-}
+const taskList = [];
 
+let projects = [];
 
-function addItem() {
-    
-}
+function contentByPeriod(tasks) {
+    const periodList = document.querySelector('.period-list');
+    const periods = document.querySelectorAll('.period-list-item');
+    const selectPeriodDiv = document.querySelector('.select-period');
+    const mainContentHeader = document.querySelector('.main-content-header');
+    let selectedPeriod = 'all';
+    // const mainContent = document.querySelector('.main-content');
 
-function deleteItem(){
-
-}
-
-function createCategory() {
-
-}
-
-
-// DOM
-
-class Dropdown {
-    constructor(){
-        this.button = document.querySelector('.timeSelect');
-        this.dropdown = document.querySelector('.timeDropdown');
-        this.button.addEventListener('click', ()=> this.toggleDropdown());
-        document.addEventListener('click', (event)=>this.closeDropdown(event));
-        this.dropdownSelect();
-    }
-
-    toggleDropdown(){
-        this.dropdown.classList.toggle('hidden');
-    }
-
-    closeDropdown(event){
-        if (!this.dropdown.contains(event.target) && !this.button.contains(event.target)) {
-            this.dropdown.classList.add('hidden');
-          }
-    }
-
-    dropdownSelect() {
-
-        const tabs = document.querySelectorAll('[data-tab-target]');
-        const tabContents = document.querySelectorAll('[data-tab-content]');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                this.toggleDropdown();
-                const target = document.querySelector(tab.dataset.tabTarget);
-    
-                tabContents.forEach(tabContent => {
-                    tabContent.classList.remove('active');
+    (function dropdown() {
+        (function selectPeriod() {
+            periods.forEach(period => {
+                period.addEventListener('click', () => {
+                    selectedPeriod = period.id;
+                    selectPeriodDiv.textContent = period.textContent;
+                    periodList.classList.add('hidden');
+                    mainContentHeader.textContent = period.textContent;
+                    content.updateContent();
                 })
-                
-                target.classList.add('active');
             })
-    
-        })
-    }
-}
+        })();
+        (function openPeriodList() {
+            selectPeriodDiv.addEventListener('click', () => {
+                periodList.classList.toggle('hidden');
+            })
+        })();
 
-class addTasks {
-    constructor(){
-        this.modal = document.querySelector('.add-task-modal');
-        this.button = document.querySelector('.add-tasks');
-        this.button.addEventListener('click', () => {
-            this.modal.removeAttribute('hidden');
-        });
-        document.addEventListener('click', (event) => {
-            if (event.target == this.modal) {
-                document.querySelector('.add-task-modal').setAttribute('hidden', true);
-            }
-        })
-        this.form = document.querySelector('form.add-task');
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const project = document.getElementById('project').value;
-            const task = document.getElementById('task').value;
-            const details = document.getElementById('details').value;
-            const dueDate = document.getElementById('due').value;
-            const priority = document.getElementById('priority').value;
-        
-            const item = new TodoItem(project, task, details, dueDate, priority);
-            items.push(item);
-            console.log(items);
-            document.dispatchEvent(updateHome.itemsChangeEvent);
-            this.form.reset();
-            
-        })
-    }
-}
-
-class updateContent {
-    constructor(){
-        this.itemsChangeEvent = new Event('itemsChange');
-        document.addEventListener('itemsChange', function() {
-            updateHome.createContent(items);
-          });
-    }
-
-    createContent(items) {
-        const filter = new filterTasks(items[items.length-1]);
-        console.log(filter);
-        updatePage(filter);
-
-        function updatePage(filter) {
-            const classifications = Object.getOwnPropertyNames(filterTasks.prototype).filter(prop => prop !== 'constructor' && typeof filter[prop] === 'function');
-            classifications.forEach(updatePage);
-            function updatePage(classification){
-        
-                const itemList = filter[classification](items)[0];
-                if (itemList.length === 0) {
-                    console.log('No items');
-                    return;
-                }
-                filter[classification](items)[1].innerHTML = '';
-                createTaskDiv(itemList, classification);
-                 
-            }
-
-            function createTaskDiv(itemList, classification) {
-                itemList.forEach((item) => {
-                    const taskDiv = document.createElement('div');
-                    taskDiv.innerHTML =`
-                    <button class="task-complete" type="button">✓</button>
-                    <button class="task-delete" type="button">X</button>
-                    <div>Project: ${item.project}</div>
-                    <div>Task: ${item.task}</div>
-                    <div>Details: ${item.details}</div>
-                    <div>Due Date: ${item.dueDate}</div>
-                    <div>Priority: ${item.priority}</div>
-                    `;
-
-                    function deleteTask(item){
-                        const index = items.findIndex((task) => task === item);
-                        if (index > -1) {
-                            items.splice(index, 1); // Remove from items array
-                        }
-                        document.dispatchEvent(updateHome.itemsChangeEvent);
-                    }
-
-                    const deleteButton = taskDiv.querySelector('.task-delete');
-                    deleteButton.addEventListener('click', () => deleteTask(item));
-
-                    filter[classification](items)[1].appendChild(taskDiv);
-                })
-            }
-
-
-            function deleteTaskButton(taskDiv){
-
-            }
+        function closeDropdown(event){
+            if (!periodList.contains(event.target) && !selectPeriodDiv.contains(event.target)) {
+                periodList.classList.add('hidden');
+              }
         }
+        document.addEventListener('click', (event)=>closeDropdown(event));
+
+    })();
+
+    // All, today, tomorrow, week, month, year, overdue
+    function filterByPeriod(tasks) {
+        function all() {
+            return tasks;
+        };
+
+        function today() {
+            return tasks.filter(task => isSameDay(new Date(task.dueDate), new Date()));
+        };
+
+        function tomorrow() {
+            return tasks.filter(task => isTomorrow(new Date(task.dueDate)));
+        };
+
+        function week() {
+            return tasks.filter(task => isSameWeek(new Date(task.dueDate), new Date()));
+        };
+
+        function month() {
+            return tasks.filter(task => isSameMonth(new Date(task.dueDate), new Date()));
+        };
+
+        function year() {
+            return tasks.filter(task => isSameYear(new Date(task.dueDate), new Date()));
+        };
+
+        function overdue() {
+            return tasks.filter(task => isPast(new Date(task.dueDate)));
+        };
+
+        return {all, today, tomorrow, week, month, year, overdue}
     }
-        
+    function updateContent() {
+        const filteredTasks = filterByPeriod(tasks)[selectedPeriod]();
+        console.log('Remaining tasks:', filteredTasks);
+        tasks.forEach(task => {
+            if (filteredTasks.includes(task)) {
+                task.isShown = true;
+            } else {
+                task.isShown = false;
+            }
+        });
+        displayContent(tasks);
+    }
+
+    return { updateContent };
+}
+
+function contentByProject(projects, tasks){
+    const selectPeriodDiv = document.querySelector('.select-period');
+
     
+    (function addNewProject(){
+        const newProject = document.getElementById('new-project');
+        newProject.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const project = newProject.value;
+                projects.push(project);
+                newProject.value = '';
+                createProjectOptions();
+                projectTabs();
+              }
+        })
+    })();
+
+    function projectTabs() {
+        const projectList = document.querySelector('.project-list');
+        const mainContentHeader = document.querySelector('.main-content-header');
+    
+        (function generateProjectTabs() { 
+            projectList.innerHTML = '';
+            projects.forEach((project) => {
+                const projectItem = document.createElement('li');
+                projectItem.classList.add('project-list-item');
+              
+                const projectItemDiv = document.createElement('div');
+                projectItemDiv.classList.add('project-list-item-div');
+                projectItemDiv.textContent = project;
+
+                const deleteProject = document.createElement('button');
+                deleteProject.textContent = 'X';
+                deleteProject.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const index = projects.findIndex((projectitem) => projectitem === project);
+                    if (index > -1) {
+                        projects.splice(index, 1);
+                    }
+                    projectItem.remove();
+                    createProjectOptions();
+                    tasks.splice(0, tasks.length, ...tasks.filter((task) => task.project !== project));
+                    displayContent(taskList);
+                 
+                });
+                projectItem.appendChild(projectItemDiv);
+                projectItem.appendChild(deleteProject);
+                projectList.appendChild(projectItem);
+            })
+        })();
+        
+        (function projectTabsClickEvent() {
+            const projectListItems = document.querySelectorAll('.project-list-item-div');
+            projectListItems.forEach(projectItem => {
+                projectItem.addEventListener('click', () =>{
+                    mainContentHeader.textContent = projectItem.textContent;
+                    // insert isShown reset here
+                    filterByProject(projectItem);
+                    selectPeriodDiv.textContent = 'All';
+    
+                })
+            })
+        })();
+        function filterByProject(projectItem) {
+            tasks.forEach(task => {
+                if(task.project === projectItem.textContent) {
+                    task.isShown = true;
+                } else {
+                    task.isShown = false;
+                }
+            })
+            displayContent(tasks);
+        }
+    };
+    projectTabs();
+    function createProjectOptions(){
+        const projectList = document.getElementById('project')
+        projectList.innerHTML = '<option value="None">None</option>';
+        projects.forEach((project) => {
+            const option = document.createElement('option');
+            option.textContent = project;
+            option.setAttribute('value', project);
+            projectList.appendChild(option);
+        })
+    };
+    createProjectOptions();
 }
 
-class filterTasks {
-    constructor(items){
-        this.items = items;
-        this.currentDate = new Date();
-    }
 
-    filterAll(items){
-        const div = document.querySelector('#all .items');
-        return [items,div]
-    }
-    filterToday(items){
-        const div = document.querySelector('#today .items');
-        const result = items.filter((item) => isSameDay(new Date(item.dueDate), this.currentDate));
-        return [result, div];
-    }
 
-    filterTomorrow(items){
-        const div = document.querySelector('#tomorrow .items');
-        const result = items.filter(item => isTomorrow(new Date(item.dueDate)));
-        return [result, div];
-    }
 
-    filterWeek(items){
-        const div = document.querySelector('#week .items');
-        const result = items.filter(item => isSameWeek(new Date(item.dueDate), this.currentDate));
-        return [result, div];
-    }
+function displayContent(tasks) {
+    const contentDiv = document.querySelector('.main-content');
+    contentDiv.innerHTML = '';
+    tasks.forEach((task) => {
+        const taskDiv = document.createElement('div');
+        taskDiv.classList.add('task-div');
+        taskDiv.innerHTML = `
+        <button class="task-complete" type="button">✓</button>
+        <button class="task-delete" type="button">X</button>
+        <div>Project: ${task.project}</div>
+        <div>Task: ${task.task}</div>
+        <div>Details: ${task.details}</div>
+        <div>Due Date: ${task.dueDate}</div>
+        <div>Priority: ${task.priority}</div>
+        `;
+        if(task.isShown === false) {
+            taskDiv.setAttribute('hidden', '');
+        }
+        else if(task.isShown === true){
+            taskDiv.removeAttribute('hidden');
+        }
+        contentDiv.appendChild(taskDiv);
 
-    filterMonth(items){
-        const div = document.querySelector('#month .items');
-        const result = items.filter(item => isSameMonth(new Date(item.dueDate), this.currentDate));
-        return [result, div];
-    }
-    filterOverdue(items){
-        const div = document.querySelector('#overdue .items');
-        const result = items.filter(item => isPast(new Date(item.dueDate)));
-        return [result, div];
-    }
+        const deleteButton = taskDiv.querySelector('.task-delete');
+        deleteButton.addEventListener('click', () => {
+            const index = tasks.findIndex((taskItem) => taskItem === task);
+            if (index > -1) {
+                tasks.splice(index, 1); // Remove from items array
+                displayContent(tasks);
+            }
+        })
+    })
+}
+
+
+
+
+function addTaskButton(){
+    const button = document.querySelector('.add-task-button');
+    button.addEventListener('click', () => {
+        document.querySelector('.add-task-modal').removeAttribute('hidden');
+    })
+    addTaskForm();
+}
+
+function addTaskForm(){
+    const formModal = document.querySelector('.add-task-modal');
+    const form = document.querySelector('.add-task');
+    
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        formModal.setAttribute('hidden', true);
+        const project = document.getElementById('project').value;
+        const task = document.getElementById('task').value;
+        const details = document.getElementById('details').value;
+        const dueDate = document.getElementById('due').value;
+        const priority = document.getElementById('priority').value;
+        const item = new TaskItem(project, task, details, dueDate, priority)
+        taskList.push(item);
+        content.updateContent();
+    })
+
+    document.addEventListener('click', (event) => {
+        if (event.target == formModal) {
+            formModal.setAttribute('hidden', true);
+        }
+    })
 }
 
 
 
 
 
-let items = [];
-const dropDown = new Dropdown();
-const addTask = new addTasks;
-const updateHome = new updateContent;
+
+addTaskButton();
+displayContent(taskList)
+// createProjectOptions();
 
 
-/*
-To do:
-1. Deleting of tasks
-2. Creating projects
-3. Deleting projects (and items in it)
-
-
-*/ 
+contentByProject(projects, taskList);
+const content = contentByPeriod(taskList);
