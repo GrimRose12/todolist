@@ -13,10 +13,19 @@ class TaskItem {
     }
 }
 
+class Render {
+    constructor(){
+        this.taskList = [];
+        this.projects = [];
+        this.content = contentByPeriod(this.taskList);
+        displayContent(this.taskList);
+        contentByProject(this.projects, this.taskList);
+        home(this.taskList, this.content);
+        addTaskButton(this.taskList, this.content);
+    }
+}
 
-const taskList = [];
-
-let projects = [];
+const render = new Render();
 
 function contentByPeriod(tasks) {
     const periodList = document.querySelector('.period-list');
@@ -24,25 +33,26 @@ function contentByPeriod(tasks) {
     const selectPeriodDiv = document.querySelector('.select-period');
     const mainContentHeader = document.querySelector('.main-content-header');
     let selectedPeriod = 'all';
-    // const mainContent = document.querySelector('.main-content');
 
-    (function dropdown() {
-        (function selectPeriod() {
+    function dropdown() {
+        function selectPeriod() {
             periods.forEach(period => {
                 period.addEventListener('click', () => {
                     selectedPeriod = period.id;
                     selectPeriodDiv.textContent = period.textContent;
                     periodList.classList.add('hidden');
                     mainContentHeader.textContent = period.textContent;
-                    content.updateContent();
+                    updateContent();
                 })
             })
-        })();
-        (function openPeriodList() {
+        };
+        selectPeriod();
+        function openPeriodList() {
             selectPeriodDiv.addEventListener('click', () => {
                 periodList.classList.toggle('hidden');
             })
-        })();
+        };
+        openPeriodList();
 
         function closeDropdown(event){
             if (!periodList.contains(event.target) && !selectPeriodDiv.contains(event.target)) {
@@ -51,10 +61,12 @@ function contentByPeriod(tasks) {
         }
         document.addEventListener('click', (event)=>closeDropdown(event));
 
-    })();
+    };
+    dropdown()
 
-    // All, today, tomorrow, week, month, year, overdue
+ 
     function filterByPeriod(tasks) {
+        // All, today, tomorrow, week, month, year, overdue
         function all() {
             return tasks;
         };
@@ -87,7 +99,6 @@ function contentByPeriod(tasks) {
     }
     function updateContent() {
         const filteredTasks = filterByPeriod(tasks)[selectedPeriod]();
-        console.log('Remaining tasks:', filteredTasks);
         tasks.forEach(task => {
             if (filteredTasks.includes(task)) {
                 task.isShown = true;
@@ -98,14 +109,14 @@ function contentByPeriod(tasks) {
         displayContent(tasks);
     }
 
-    return { updateContent };
+    return { updateContent, filterByPeriod };
 }
 
 function contentByProject(projects, tasks){
     const selectPeriodDiv = document.querySelector('.select-period');
 
     
-    (function addNewProject(){
+    function addNewProject(){
         const newProject = document.getElementById('new-project');
         newProject.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -117,13 +128,14 @@ function contentByProject(projects, tasks){
                 projectTabs();
               }
         })
-    })();
+    };
+    addNewProject();
 
     function projectTabs() {
         const projectList = document.querySelector('.project-list');
         const mainContentHeader = document.querySelector('.main-content-header');
     
-        (function generateProjectTabs() { 
+        function generateProjectTabs() { 
             projectList.innerHTML = '';
             projects.forEach((project) => {
                 const projectItem = document.createElement('li');
@@ -144,16 +156,17 @@ function contentByProject(projects, tasks){
                     projectItem.remove();
                     createProjectOptions();
                     tasks.splice(0, tasks.length, ...tasks.filter((task) => task.project !== project));
-                    displayContent(taskList);
+                    displayContent(render.taskList);
                  
                 });
                 projectItem.appendChild(projectItemDiv);
                 projectItem.appendChild(deleteProject);
                 projectList.appendChild(projectItem);
             })
-        })();
+        };
+        generateProjectTabs()
         
-        (function projectTabsClickEvent() {
+        function projectTabsClickEvent() {
             const projectListItems = document.querySelectorAll('.project-list-item-div');
             projectListItems.forEach(projectItem => {
                 projectItem.addEventListener('click', () =>{
@@ -164,7 +177,8 @@ function contentByProject(projects, tasks){
     
                 })
             })
-        })();
+        };
+        projectTabsClickEvent();
         function filterByProject(projectItem) {
             tasks.forEach(task => {
                 if(task.project === projectItem.textContent) {
@@ -220,7 +234,7 @@ function displayContent(tasks) {
         deleteButton.addEventListener('click', () => {
             const index = tasks.findIndex((taskItem) => taskItem === task);
             if (index > -1) {
-                tasks.splice(index, 1); // Remove from items array
+                tasks.splice(index, 1);
                 displayContent(tasks);
             }
         })
@@ -230,15 +244,15 @@ function displayContent(tasks) {
 
 
 
-function addTaskButton(){
+function addTaskButton(taskList, content){
     const button = document.querySelector('.add-task-button');
     button.addEventListener('click', () => {
         document.querySelector('.add-task-modal').removeAttribute('hidden');
     })
-    addTaskForm();
-}
+    addTaskForm(taskList, content);
+};
 
-function addTaskForm(){
+function addTaskForm(taskList, content){
     const formModal = document.querySelector('.add-task-modal');
     const form = document.querySelector('.add-task');
     
@@ -274,16 +288,33 @@ function addTaskForm(){
 }
 
 
-{
-   
+function home(taskList, content) {
+    const homeTab = document.querySelector('.home');
+    const mainContent = document.querySelector('.main-content');
+    const mainContentHeader = document.querySelector('.main-content-header');
+    homeTab.addEventListener('click', homeContent);
+
+    function homeContent() {
+        const allTasks = content.filterByPeriod(taskList).all().length;
+        const todayTasks = content.filterByPeriod(taskList).today().length;
+        const tomorrowTasks = content.filterByPeriod(taskList).tomorrow().length;
+        const weekTasks = content.filterByPeriod(taskList).week().length;
+        const monthTasks = content.filterByPeriod(taskList).month().length;
+        const yearTasks = content.filterByPeriod(taskList).year().length;
+        const overdueTasks = content.filterByPeriod(taskList).overdue().length;
+
+        mainContent.innerHTML = '';
+        mainContentHeader.textContent = 'Home';
+        mainContent.innerHTML = `
+       
+        You have ${allTasks} unfinished ${allTasks <= 1 ? 'task' : 'tasks'}.<br>
+        ${todayTasks} ${todayTasks <= 1 ? 'is' : 'are'} due today.<br>
+        ${tomorrowTasks} ${tomorrowTasks <= 1 ? 'is' : 'are'} due tomorrow.<br>
+        ${weekTasks} ${weekTasks <= 1 ? 'is' : 'are'} due this week.<br>
+        ${monthTasks} ${monthTasks <= 1 ? 'is' : 'are'} due this month.<br>
+        ${yearTasks} ${yearTasks <= 1 ? 'is' : 'are'} due this year.<br>
+        ${overdueTasks} ${overdueTasks <= 1 ? 'is' : 'are'} overdue.
+        `
+    }
+    homeContent();
 }
-
-
-
-addTaskButton();
-displayContent(taskList)
-// createProjectOptions();
-
-
-contentByProject(projects, taskList);
-const content = contentByPeriod(taskList);
