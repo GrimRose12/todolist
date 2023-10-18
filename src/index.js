@@ -257,13 +257,24 @@ function addTaskForm(){
 
     document.addEventListener('click', (event) => {
         if (event.target == formModal) {
-            formModal.setAttribute('hidden', true);
+            closeModal();
         }
     })
+
+    const closeModalButton = document.querySelector('.closeModal');
+    closeModalButton.addEventListener('click', () => {
+        closeModal();
+    })
+
+    function closeModal(){
+        formModal.setAttribute('hidden', true);
+    };
 }
 
 
-
+{
+   
+}
 
 
 
