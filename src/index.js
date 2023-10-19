@@ -14,9 +14,9 @@ class TaskItem {
 }
 
 class Render {
-    constructor(){
-        this.taskList = [];
-        this.projects = [];
+    constructor(taskList, projects){
+        this.taskList = taskList;
+        this.projects = projects;
         this.content = contentByPeriod(this.taskList);
         displayContent(this.taskList);
         contentByProject(this.projects, this.taskList);
@@ -25,7 +25,25 @@ class Render {
     }
 }
 
-const render = new Render();
+
+if(!localStorage.getItem('taskList')){
+    populateStorage()
+} else {
+    setItems();
+}
+
+function populateStorage(){
+    localStorage.setItem('taskList', JSON.stringify([]));
+    localStorage.setItem('projects', JSON.stringify([]));
+}
+
+function setItems(){
+    const tasks = JSON.parse(localStorage.getItem('taskList'));
+    const projects = JSON.parse(localStorage.getItem('projects'));
+    const render = new Render(tasks, projects);
+}   
+
+// const render = new Render();
 
 function contentByPeriod(tasks) {
     const periodList = document.querySelector('.period-list');
@@ -123,6 +141,7 @@ function contentByProject(projects, tasks){
                 e.preventDefault();
                 const project = newProject.value;
                 projects.push(project);
+                localStorage.setItem('projects', JSON.stringify(projects));
                 newProject.value = '';
                 createProjectOptions();
                 projectTabs();
@@ -156,7 +175,7 @@ function contentByProject(projects, tasks){
                     projectItem.remove();
                     createProjectOptions();
                     tasks.splice(0, tasks.length, ...tasks.filter((task) => task.project !== project));
-                    displayContent(render.taskList);
+                    displayContent(tasks);
                  
                 });
                 projectItem.appendChild(projectItemDiv);
@@ -266,6 +285,7 @@ function addTaskForm(taskList, content){
         const priority = document.getElementById('priority').value;
         const item = new TaskItem(project, task, details, dueDate, priority)
         taskList.push(item);
+        localStorage.setItem('taskList', JSON.stringify(taskList));
         content.updateContent();
         document.getElementById('task').value = '';
         document.getElementById('details').value = '';
@@ -318,3 +338,4 @@ function home(taskList, content) {
     }
     homeContent();
 }
+
